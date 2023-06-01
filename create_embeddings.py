@@ -5,12 +5,9 @@ from parsers import parse_and_chunk
 from embeddings import create_local_embeddings
 from pprint import pprint
 
-import nltk
-nltk.download('punkt')
-
-parties = ["podemos"]
+parties = ["podemos", "psoe"]
 for party in parties:
-    print("\n importing " + party)
+    print("\nimporting " + party)
 
     text = read_pdf(party)
     chunks = parse_and_chunk(party, text)

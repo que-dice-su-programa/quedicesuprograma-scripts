@@ -1,11 +1,22 @@
 import re
-from langchain.text_splitter import NLTKTextSplitter
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 def parse_and_chunk(party, text):
     if party == "podemos":
         return PodemosParser().parse_and_chunk(text)
+    elif party == "psoe":
+        return PSOEParser().parse_and_chunk(text)
     else:
         raise Exception("Party not supported")
+
+
+def chunk_text(text):
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size = 1024,
+        chunk_overlap = 20
+    )
+
+    return text_splitter.create_documents([text])
 
 class PodemosParser:
     def parse_and_chunk(self, text):
@@ -13,9 +24,8 @@ class PodemosParser:
         text = self.__remove_line_breaks(text)
         text = self.__remove_page_numbers(text)
         text = self.__remove_footers(text)
-        text_splitter = NLTKTextSplitter()
-        chunks = text_splitter.split_text(text)
-        chunks = map(lambda chunk: chunk.replace('\n', ' '), chunks)
+        chunks = self.__chunk_text(text)
+        chunks = map(lambda chunk: chunk.page_content.replace('\n', ' '), chunks)
 
         return list(chunks)
 
@@ -26,7 +36,7 @@ class PodemosParser:
 
     def __remove_line_breaks(self, text):
         """Remove line breaks from text"""
-        return text.replace(' -\n', '').replace('  ', ' ').replace(' \n', ' ')
+        return text.replace(' -\n', '').replace('  ', ' ').replace('- ', '').replace(' \n', ' ')
 
     def __remove_page_numbers(self, text):
         """Remove page numbers with a regex that matches  ".\n{number}." """
@@ -35,4 +45,39 @@ class PodemosParser:
     def __remove_footers(self, text):
         return text.replace('\nPODEMOS.', ' ')
 
+    def __chunk_text(self, text):
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size = 1024,
+            chunk_overlap = 20
+        )
+
+        return text_splitter.create_documents([text])
+
+
+class PSOEParser:
+    def parse_and_chunk(self, text):
+        text = self.__remove_line_breaks(text)
+        text = self.__remove_page_numbers(text)
+        chunks = self.__chunk_text(text)
+        chunks = map(lambda chunk: chunk.page_content.replace('\n', ' '), chunks)
+
+        return list(chunks)[6::][:-2]
+
+    def __remove_line_breaks(self, text):
+        """Remove line breaks from text"""
+        return text.replace(' -\n', '').replace('  ', ' ').replace(' \n', ' ')
+
+    def __remove_page_numbers(self, text):
+        """Remove page numbers with a regex that matches  ".\n{number}." """
+        text = re.sub(r'\.\d+\n', '.', text)
+        text = re.sub(r'\d+\n', '.', text)
+        return text
+
+    def __chunk_text(self, text):
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size = 1024,
+            chunk_overlap = 20
+        )
+
+        return text_splitter.create_documents([text])
 
