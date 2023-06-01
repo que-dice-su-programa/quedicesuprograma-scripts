@@ -5,7 +5,7 @@ from parsers import parse_and_chunk
 from embeddings import create_local_embeddings
 from pprint import pprint
 
-parties = ["podemos", "psoe"]
+parties = ["podemos", "psoe", "pp", "vox"]
 for party in parties:
     print("\nimporting " + party)
 
