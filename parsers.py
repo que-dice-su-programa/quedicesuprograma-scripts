@@ -1,6 +1,7 @@
 import re
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
+
 def parse_and_chunk(party, text):
     if party == "podemos":
         return PodemosParser().parse_and_chunk(text)
@@ -14,14 +15,6 @@ def parse_and_chunk(party, text):
         raise Exception("Party not supported")
 
 
-def chunk_text(text):
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size = 1024,
-        chunk_overlap = 100
-    )
-
-    return text_splitter.create_documents([text])
-
 class PodemosParser:
     def parse_and_chunk(self, text):
         text = self.__remove_index(text)
@@ -29,7 +22,8 @@ class PodemosParser:
         text = self.__remove_page_numbers(text)
         text = self.__remove_footers(text)
         chunks = self.__chunk_text(text)
-        chunks = map(lambda chunk: chunk.page_content.replace('\n', ' '), chunks)
+        chunks = map(
+            lambda chunk: chunk.page_content.replace('\n', ' '), chunks)
 
         return list(chunks)
 
@@ -51,8 +45,8 @@ class PodemosParser:
 
     def __chunk_text(self, text):
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size = 1024,
-            chunk_overlap = 20
+            chunk_size=1024,
+            chunk_overlap=20
         )
 
         return text_splitter.create_documents([text])
@@ -63,7 +57,8 @@ class PSOEParser:
         text = self.__remove_line_breaks(text)
         text = self.__remove_page_numbers(text)
         chunks = self.__chunk_text(text)
-        chunks = map(lambda chunk: chunk.page_content.replace('\n', ' '), chunks)
+        chunks = map(
+            lambda chunk: chunk.page_content.replace('\n', ' '), chunks)
 
         return list(chunks)[6::][:-2]
 
@@ -79,8 +74,8 @@ class PSOEParser:
 
     def __chunk_text(self, text):
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size = 1024,
-            chunk_overlap = 20
+            chunk_size=1024,
+            chunk_overlap=20
         )
 
         return text_splitter.create_documents([text])
@@ -93,13 +88,15 @@ class PPParser:
         text = self.__remove_page_numbers(text)
         text = self.__remove_titles(text)
         chunks = self.__chunk_text(text)
-        chunks = map(lambda chunk: chunk.page_content.replace('\n', ' '), chunks)
+        chunks = map(
+            lambda chunk: chunk.page_content.replace('\n', ' '), chunks)
 
         return list(chunks)[6::][:-2]
 
     def __remove_titles(self, text):
         lines = text.split("\n")
-        lines_without_uppercase = [line for line in lines if not line.isupper()]
+        lines_without_uppercase = [
+            line for line in lines if not line.isupper()]
         return "\n".join(lines_without_uppercase)
 
     def __remove_line_breaks(self, text):
@@ -119,8 +116,8 @@ class PPParser:
 
     def __chunk_text(self, text):
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size = 1024,
-            chunk_overlap = 20
+            chunk_size=1024,
+            chunk_overlap=20
         )
 
         return text_splitter.create_documents([text])
@@ -132,7 +129,8 @@ class VoxParser:
         text = self.__remove_point_numbers(text)
         text = self.__remove_titles(text)
         chunks = self.__chunk_text(text)
-        chunks = map(lambda chunk: chunk.page_content.replace('\n', ' '), chunks)
+        chunks = map(
+            lambda chunk: chunk.page_content.replace('\n', ' '), chunks)
 
         return list(chunks)[6::][:-2]
 
@@ -142,7 +140,8 @@ class VoxParser:
 
     def __remove_titles(self, text):
         lines = text.split("\n")
-        lines_without_uppercase = [line for line in lines if not line.isupper()]
+        lines_without_uppercase = [
+            line for line in lines if not line.isupper()]
         return "\n".join(lines_without_uppercase)
 
     def __remove_point_numbers(self, text):
@@ -154,9 +153,8 @@ class VoxParser:
 
     def __chunk_text(self, text):
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size = 1024,
-            chunk_overlap = 20
+            chunk_size=1024,
+            chunk_overlap=20
         )
 
         return text_splitter.create_documents([text])
-
