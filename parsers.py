@@ -1,5 +1,6 @@
 import re
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.text_splitter import CharacterTextSplitter
 
 
 def parse_and_chunk(party, text):
@@ -44,9 +45,10 @@ class PodemosParser:
         return text.replace('\nPODEMOS.', ' ')
 
     def __chunk_text(self, text):
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1024,
-            chunk_overlap=20
+        text_splitter = CharacterTextSplitter(
+            separator='.',
+            chunk_size=128,
+            chunk_overlap=15,
         )
 
         return text_splitter.create_documents([text])
@@ -74,8 +76,8 @@ class PSOEParser:
 
     def __chunk_text(self, text):
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1024,
-            chunk_overlap=20
+            chunk_size=128,
+            chunk_overlap=15
         )
 
         return text_splitter.create_documents([text])
@@ -116,8 +118,8 @@ class PPParser:
 
     def __chunk_text(self, text):
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1024,
-            chunk_overlap=20
+            chunk_size=128,
+            chunk_overlap=15
         )
 
         return text_splitter.create_documents([text])
@@ -153,8 +155,8 @@ class VoxParser:
 
     def __chunk_text(self, text):
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1024,
-            chunk_overlap=20
+            chunk_size=128,
+            chunk_overlap=15
         )
 
         return text_splitter.create_documents([text])

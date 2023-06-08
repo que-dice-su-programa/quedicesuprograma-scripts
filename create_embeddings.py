@@ -6,6 +6,7 @@ from embeddings import create_local_embeddings
 from pprint import pprint
 
 parties = ["podemos", "psoe", "pp", "vox"]
+parties = ["podemos"]
 for party in parties:
     print("\nimporting " + party)
 
