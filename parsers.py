@@ -84,36 +84,46 @@ class PSOEParser:
         )
 
         return text_splitter.create_documents([text])
-
-
 class PPParser:
     def parse(self, text):
+        text = self.__remove_index(text)
         text = self.__remove_line_breaks(text)
         text = self.__remove_point_numbers(text)
         text = self.__remove_page_numbers(text)
         text = self.__remove_titles(text)
+        text = self.__wrap_paragraphs(text)
 
         return text
+
+    def __remove_index(self, text):
+        lines = text.split('\n')
+        filtered_lines = [line for line in lines if "...." not in line]
+        return '\n'.join(filtered_lines)
 
     def __remove_titles(self, text):
         lines = text.split("\n")
         lines_without_uppercase = [
             line for line in lines if not line.isupper()]
-        return "\n".join(lines_without_uppercase)
+
+        text = "\n".join(lines_without_uppercase[19:]).replace('RAREDIL', '').replace('RIULFNI', '')
+        return re.sub(r'\d+Objetivo', '', text)
 
     def __remove_line_breaks(self, text):
         """Remove line breaks from text"""
         return text.replace(' -\n', '').replace('  ', ' ').replace(' \n', ' ')
 
+    def __wrap_paragraphs(self, text):
+        return re.sub(r'(?<!\.)\n', ' ', text)
+
     def __remove_point_numbers(self, text):
         text = re.sub(r'\d+_ ', '', text)
         text = re.sub(r'\d+ _ ', '', text)
+        text = re.sub(r'\d+“', '', text)
         return text
 
     def __remove_page_numbers(self, text):
         """Remove page numbers with a regex that matches  ".\n{number}." """
-        text = re.sub(r'\d+PROGRAMA ELECTORAL ', '', text)
-        text = re.sub(r'\d+ \. ', '', text)
+        text = re.sub(r'\n\d+\n', '', text)
         return text
 
     def __chunk_text(self, text):
