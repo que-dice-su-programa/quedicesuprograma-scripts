@@ -54,20 +54,28 @@ class SumarParser:
 
 class PSOEParser:
     def parse(self, text):
+        text = self.__remove_index(text)
         text = self.__remove_line_breaks(text)
         text = self.__remove_page_numbers(text)
 
         return text
 
+    def __remove_index(self, text):
+        lines = text.split('\n')
+        filtered_lines = [line for line in lines if "......." not in line]
+        return '\n'.join(filtered_lines)
+
     def __remove_line_breaks(self, text):
         """Remove line breaks from text"""
-        return text.replace(' -\n', '').replace('  ', ' ').replace(' \n', ' ')
+        text = text.replace(' -\n', '').replace('  ', ' ').replace(' \n', ' ')
+        return re.sub(r'(?<!\.)\n', ' ', text).replace('• ', '')
 
     def __remove_page_numbers(self, text):
         """Remove page numbers with a regex that matches  ".\n{number}." """
         text = re.sub(r'\.\d+\n', '.', text)
         text = re.sub(r'\d+\n', '.', text)
-        return text
+        text = re.sub(r'/\d+ MADRID 7 DE JULIO 2023', '', text)
+        return text.replace('Madrid 7 de julio de 2023', '')
 
     def __chunk_text(self, text):
         text_splitter = RecursiveCharacterTextSplitter(
