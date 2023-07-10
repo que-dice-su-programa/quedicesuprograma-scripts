@@ -1,10 +1,10 @@
-import PyPDF2
+import pdfplumber
 
 def read_pdf(party):
-    with open(f"./input/{party}.pdf", 'rb') as file:
-        pdf_reader = PyPDF2.PdfReader(file)
-        text = ''
-        for page in pdf_reader.pages:
-            text += page.extract_text()
+    pdf = pdfplumber.open(f"./input/{party}.pdf")
+
+    text = ''
+    for page in pdf.pages:
+        text += page.extract_text()
 
     return text

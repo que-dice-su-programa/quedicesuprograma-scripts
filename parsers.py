@@ -3,30 +3,27 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.text_splitter import CharacterTextSplitter
 
 
-def parse_and_chunk(party, text):
-    if party == "podemos":
-        return PodemosParser().parse_and_chunk(text)
+def parse(party, text):
+    if party == "sumar":
+        return SumarParser().parse(text)
     elif party == "psoe":
-        return PSOEParser().parse_and_chunk(text)
+        return PSOEParser().parse(text)
     elif party == "pp":
-        return PPParser().parse_and_chunk(text)
+        return PPParser().parse(text)
     elif party == "vox":
-        return VoxParser().parse_and_chunk(text)
+        return VoxParser().parse(text)
     else:
         raise Exception("Party not supported")
 
 
-class PodemosParser:
-    def parse_and_chunk(self, text):
+class SumarParser:
+    def parse(self, text):
         text = self.__remove_index(text)
-        text = self.__remove_line_breaks(text)
         text = self.__remove_page_numbers(text)
+        text = self.__remove_line_breaks(text)
         text = self.__remove_footers(text)
-        chunks = self.__chunk_text(text)
-        chunks = map(
-            lambda chunk: chunk.page_content.replace('\n', ' '), chunks)
 
-        return list(chunks)
+        return text
 
     def __remove_index(self, text):
         lines = text.split('\n')
@@ -35,11 +32,12 @@ class PodemosParser:
 
     def __remove_line_breaks(self, text):
         """Remove line breaks from text"""
-        return text.replace(' -\n', '').replace('  ', ' ').replace('- ', '').replace(' \n', ' ')
+        text = text.replace(' -\n', '').replace('-\n', '').replace('  ', ' ').replace('- ', '').replace(' \n', ' ')
+        return re.sub(r'(?<!\.)\n', ' ', text).replace(' . ', '').replace(' ) ', '')
 
     def __remove_page_numbers(self, text):
         """Remove page numbers with a regex that matches  ".\n{number}." """
-        return re.sub(r'\.\n\d+\.', '.', text)
+        return re.sub(r'(?<=\n)(?!\.)\d+', '\n', text)
 
     def __remove_footers(self, text):
         return text.replace('\nPODEMOS.', ' ')
@@ -55,14 +53,11 @@ class PodemosParser:
 
 
 class PSOEParser:
-    def parse_and_chunk(self, text):
+    def parse(self, text):
         text = self.__remove_line_breaks(text)
         text = self.__remove_page_numbers(text)
-        chunks = self.__chunk_text(text)
-        chunks = map(
-            lambda chunk: chunk.page_content.replace('\n', ' '), chunks)
 
-        return list(chunks)[6::][:-2]
+        return text
 
     def __remove_line_breaks(self, text):
         """Remove line breaks from text"""
@@ -84,16 +79,13 @@ class PSOEParser:
 
 
 class PPParser:
-    def parse_and_chunk(self, text):
+    def parse(self, text):
         text = self.__remove_line_breaks(text)
         text = self.__remove_point_numbers(text)
         text = self.__remove_page_numbers(text)
         text = self.__remove_titles(text)
-        chunks = self.__chunk_text(text)
-        chunks = map(
-            lambda chunk: chunk.page_content.replace('\n', ' '), chunks)
 
-        return list(chunks)[6::][:-2]
+        return text
 
     def __remove_titles(self, text):
         lines = text.split("\n")
@@ -126,15 +118,14 @@ class PPParser:
 
 
 class VoxParser:
-    def parse_and_chunk(self, text):
+    def parse(self, text):
+        text = self.__remove_page_numbers(text)
         text = self.__remove_line_breaks(text)
         text = self.__remove_point_numbers(text)
         text = self.__remove_titles(text)
-        chunks = self.__chunk_text(text)
-        chunks = map(
-            lambda chunk: chunk.page_content.replace('\n', ' '), chunks)
+        text = self.__clean_chars(text)
 
-        return list(chunks)[6::][:-2]
+        return text
 
     def __remove_line_breaks(self, text):
         """Remove line breaks from text"""
@@ -150,8 +141,10 @@ class VoxParser:
         return re.sub(r'\d+. ', '', text)
 
     def __remove_page_numbers(self, text):
-        """Remove page numbers with a regex that matches  ".\n{number}." """
-        return re.sub(r'\.\d+\n', '', text)
+        return re.sub(r'\n\d+\.', '', text)
+
+    def __clean_chars(self, text):
+        return text.replace('昀椀', 'fi')
 
     def __chunk_text(self, text):
         text_splitter = RecursiveCharacterTextSplitter(
