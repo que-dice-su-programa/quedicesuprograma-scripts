@@ -84,6 +84,8 @@ class PSOEParser:
         )
 
         return text_splitter.create_documents([text])
+
+
 class PPParser:
     def parse(self, text):
         text = self.__remove_index(text)
@@ -138,16 +140,25 @@ class PPParser:
 class VoxParser:
     def parse(self, text):
         text = self.__remove_page_numbers(text)
+        text = self.__remove_index(text)
         text = self.__remove_line_breaks(text)
         text = self.__remove_point_numbers(text)
         text = self.__remove_titles(text)
         text = self.__clean_chars(text)
+        text = self.__wrap_paragraphs(text)
 
         return text
 
+    def __remove_index(self, text):
+        lines = text.split("\n")
+        return "\n".join(lines[6:])
+
     def __remove_line_breaks(self, text):
         """Remove line breaks from text"""
-        return text.replace(' -\n', '').replace('  ', ' ').replace(' \n', ' ')
+        return text.replace('-\n', '')
+
+    def __wrap_paragraphs(self, text):
+        return re.sub(r'(?<!\.)\n', ' ', text)
 
     def __remove_titles(self, text):
         lines = text.split("\n")
@@ -159,10 +170,11 @@ class VoxParser:
         return re.sub(r'\d+. ', '', text)
 
     def __remove_page_numbers(self, text):
-        return re.sub(r'\n\d+\.', '', text)
+        text = re.sub(r'\n\d+', '', text)
+        return re.sub(r'\d+NUESTRAS MEDIDAS', '', text).replace('NUESTRAS MEDIDAS', '')
 
     def __clean_chars(self, text):
-        return text.replace('昀椀', 'fi')
+        return text.replace('昀椀', 'fi').replace('昀氀', 'fl')
 
     def __chunk_text(self, text):
         text_splitter = RecursiveCharacterTextSplitter(
