@@ -1,4 +1,2 @@
-langchain==0.0.188
-pandas==2.0.1
-PyPDF2==3.0.1
-sentence_transformers==2.2.2
+langchain==0.0.229
+pdfplumber==0.9.0

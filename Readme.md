@@ -15,7 +15,7 @@ make setup
 You'll need to run
 
 ```
-python ./create_embeddings.py
+python ./pdfs_to_txt.py.py
 ```
 
-The embeddings file will be outputted to `./data/{party}_embeddings.csv`
+The txt files will be outputted to `./data/{party}txt.csv`
